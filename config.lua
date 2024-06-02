@@ -12,7 +12,7 @@ Config.botAvatar = "https://i.imgur.com/PizJGsh.png"
 ----------------------------------------------------------------
 Config.Framework = 'ESX' -- 'ESX' or 'QBCore'
 
-Config.Phone = 'yphone' -- 'chezza', 'gcphone', 'dphone', 'gksphone', 'highphone', 'roadphone', 'qbphone', 'npwd', 'yphone'
+Config.Phone = 'yphone' -- 'chezza', 'gcphone', 'dphone', 'gksphone', 'gksphone_v2', 'highphone', 'roadphone', 'qbphone', 'npwd', 'yphone'
 
 -- If false you need NativeUI installed
 Config.dialogBox = true -- If true then you need an_dialogBox (https://github.com/notaymanTV/an_dialogBox)
@@ -35,7 +35,7 @@ Config.numberFormat = 'number' -- 'number', 'gc' or 'canada'
 Config.wishItem = 'simcard_wish' -- Item to insert a Number by yourself // Add this to your items table in database
 Config.numberLength = 9 -- max numbers // default: 9 - Number would be 094XXXXXX // numberLength doesn't work for 'gc' and 'canada' option!
 ----------------------------------------------------------------
-Config.changeDefault = true -- Should the Script change the default value? // ESX: users, phone_number // QBCore: players, charinfo
+Config.changeDefault = true -- Should the Script change the default value? Usefull for some MDT Systems // ESX: users, phone_number // QBCore: players, charinfo
 Config.changeDatabase = true -- Set false to deactivate changes in database (Config.Database) // recommended: set true
 
 -- Read the README.md for more information
@@ -43,8 +43,8 @@ Config.Database = {
     usersDB = 'users', -- Users Table // ESX default: 'users' // QBCore default: 'players'
     usersIdentifierTB = 'identifier', -- identifier for users table // ESX default: 'identifier' // QBCore default: citizenid
 
-    numberDB = 'yphone_sim_cards', -- In which table is the phonenumber located // ESX default: 'users' // QBCore default: 'players'
-    numberTB = 'sim_number', -- Column for phonenumber // ESX default: 'phone_number'  // QBCore default: 'charinfo'
+    numberDB = 'yphone_ycloud_accounts', -- In which table is the phonenumber located // ESX default: 'users' // QBCore default: 'players'
+    numberTB = 'phone_number', -- Column for phonenumber // ESX default: 'phone_number'  // QBCore default: 'charinfo'
     identifierTB = 'phone_imei' -- identifier for numberDB table // ESX default: 'identifier'  // QBCore default: 'citizenid'
 }
 ----------------------------------------------------------------
@@ -61,6 +61,9 @@ Config.updateNumber = function(source, newNumber)
         TriggerClientEvent("d-phone:client:changenumber", source, newNumber)
     elseif Config.Phone == 'gksphone' then -- GKSphone
         exports['gksphone']:NumberChange(source, tostring(newNumber))
+    elseif Config.Phone == 'gksphone_v2' then -- GKSphone
+        local phoneData = exports["gksphone"]:GetPhoneDataBySource(source)
+        exports["gksphone"]:NewNumber(source, phoneData.uniqID or nil, tostring(newNumber))
     elseif Config.Phone == 'highphone' then -- HighPhone
         exports['high_phone']:setPlayerPhoneNumber(source, tostring(newNumber))
     elseif Config.Phone == 'roadphone' then -- RoadPhone
@@ -72,7 +75,6 @@ Config.updateNumber = function(source, newNumber)
     elseif Config.Phone == 'yphone' then -- yFlip/ySeries Phone
         local imei = exports['yseries']:GetPhoneImeiBySourceId(source)
         exports['yseries']:ChangePhoneNumber(imei, newNumber)
-        TriggerClientEvent('yseries:client:post-sim-card-change', source)
     end
     
     Config.Notification(source, Translation[Config.Locale]['updateNumber']:format(newNumber), newNumber)

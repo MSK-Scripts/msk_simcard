@@ -141,11 +141,6 @@ updatePhoneNumber = function(xPlayer, newNumber, item)
         local imei
         if Config.Phone == 'yphone' then
             imei = exports["yseries"]:GetPhoneImeiBySourceId(playerData.playerId)
-
-            -- This is necessary
-            MySQL.update('UPDATE yphone_ycloud_accounts SET phone_number = ? WHERE phone_imei = ?', {
-                newNumber, imei
-            })
         end
 
         if Config.changeDatabase then
